@@ -1,0 +1,114 @@
+CREATE DATABASE EMPLOYEEDB;
+USE EMPLOYEEDB;
+
+CREATE TABLE EMPLOYEES(
+EMPID INT PRIMARY KEY,
+EMPNAME VARCHAR(50),
+DEPARTMENT VARCHAR(50),
+SALARY DECIMAL(10,2)
+);
+
+INSERT INTO EMPLOYEES VALUES 
+(101,'A','IT',50000),
+(102,'B','HR',40000),
+(103,'C','IT',60000),
+(104,'D','FINANCE',45000),
+(105,'E','IT',55000);
+
+-- CREATE STRORED PROCEDURE TO CAL TOTAL SAL BY DEPARTMENT 
+
+
+DELIMITER //
+CREATE PROCEDURE TOTALSALARY(IN DEPT_NAME VARCHAR(50))
+BEGIN 
+SELECT DEPARTMENT ,SUM(SALARY)
+FROM EMPLOYEES 
+WHERE DEPARTMENT ="IT"
+GROUP BY DEPARTMENT ;
+END//
+DELIMITER ;
+
+CALL TOTALSALARY("IT");
+
+
+-- CREATE PROCEDURE TO UPDATE SALARIES OF DEPARTMENTS 
+
+
+DELIMITER // 
+CREATE PROCEDURE UPDATEDEPARTMENTSALARIES(
+IN DEPT_NAME VARCHAR(50),
+IN INCREMENT DECIMAL(10,2)
+)
+BEGIN 
+UPDATE EMPLOYEES
+SET SALARY=SALARY +INCREMENT
+WHERE DEPARTMENT =DEPT_NAME ;
+
+ SELECT EMPID ,EMPNAME ,DEPARTMENT,SALARY
+ FROM EMPLOYEES
+ WHERE DEPARTMENT =DEPT_NAME;
+ END //
+ DELIMITER ;
+ 
+ CALL UPDATEDEPARTMENTSALARIES('IT',5000);
+ 
+ 
+ 
+ -- WINDOW FUNCTIONS 
+ CREATE DATABASE ORGDB;
+USE ORGDB;
+
+CREATE TABLE Employee (
+    EmployeeID INT PRIMARY KEY,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    Department VARCHAR(50),
+    Salary DECIMAL(10, 2),
+    HireDate DATE
+);
+
+INSERT INTO Employee (EmployeeID, FirstName, LastName, Department, Salary, HireDate) VALUES
+(1, 'John', 'Doe', 'HR', 50000, '2020-01-15'),
+(2, 'Jane', 'Smith', 'Finance', 60000, '2018-03-12'),
+(3, 'Sam', 'Brown', 'IT', 75000, '2019-05-22'),
+(4, 'Lucy', 'Jones', 'HR', 53000, '2021-07-11'),
+(5, 'Mike', 'Taylor', 'Finance', 65000, '2017-09-23'),
+(6, 'Sara', 'Miller', 'IT', 78000, '2018-06-30');
+
+
+SELECT EmployeeID, FirstName, LastName, Department, Salary,
+    ROW_NUMBER() OVER (PARTITION BY Department ORDER BY Salary DESC) AS RowNum
+FROM Employee;
+
+-- RANK()
+SELECT EmployeeID, FirstName, LastName, Department, Salary,
+    RANK() OVER (PARTITION BY Department ORDER BY Salary DESC) AS Rankk
+FROM Employee;
+
+-- DENSE_RANK()
+SELECT EmployeeID, FirstName, LastName, Department, Salary,
+    DENSE_RANK() OVER (PARTITION BY Department ORDER BY Salary DESC) AS DenseRank
+FROM Employee;
+
+
+
+-- PRECENT_RANK()
+SELECT EmployeeID, FirstName, LastName, Department, Salary,
+    PERCENT_RANK() OVER (PARTITION BY Department ORDER BY Salary DESC) AS PercentRank
+FROM Employee;
+
+
+-- NTILE()
+SELECT EmployeeID, FirstName, LastName, Department, Salary,
+    NTILE(2) OVER (PARTITION BY Department ORDER BY Salary DESC) AS Quartile
+FROM Employee;
+
+
+-- LEAD()
+SELECT EmployeeID, FirstName, LastName, HireDate, Department, Salary,
+    LEAD(Salary) OVER (PARTITION BY Department ORDER BY HireDate) AS NextSalary
+FROM Employee;
+
+
+
+
